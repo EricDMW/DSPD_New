@@ -1,0 +1,11 @@
+# Ignore everything by default
+*
+
+# Allow directories so Git can descend into them
+!*/
+
+# Keep Python source files
+!*.py
+
+# Keep this .gitignore itself
+!.gitignore
