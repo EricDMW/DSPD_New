@@ -1,0 +1,26 @@
+# run_0044: TRUNCATION-RADIUS (kappa) SWEEP with large-batch gradient probe.
+# Validates the O(eps'(kappa,kappa_p)) truncation term of Theorem 3: eps'(kappa,kappa_p) is
+# proportional to gamma^{h(kappa,kappa_p)+1}, so the converged large-batch stationarity residual
+# should DECREASE as the credit/communication radius kappa grows (1 -> 2 -> 3). Same reference DSPD
+# operating point as run_0039/run_0043 (init_idle_bias=2.5, actor_lr=0.02, eta_mu=4.0); only kappa
+# changes. Probe at B in {256,1024} (near-true gradient; run_0043 showed B=1024 within ~1% of the
+# infinite-batch residual). All data are real logged runs.
+profile: grad_probe_kappa
+base: base.yaml
+
+overrides:
+  seeds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+  checkpoint_every: 100000
+  eval_M: 60
+  grad_probe_batches: [256, 1024]
+
+experiments:
+  - config: kap1
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5, actor_lr: 0.020, eta_mu: 4.0, kappa: 1}
+  - config: kap2
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5, actor_lr: 0.020, eta_mu: 4.0, kappa: 2}
+  - config: kap3
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5, actor_lr: 0.020, eta_mu: 4.0, kappa: 3}

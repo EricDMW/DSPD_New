@@ -1,0 +1,40 @@
+# Parameter group D -- smaller actor step + larger MC batch (brief section 10 sweeps:
+# actor_lr and M/eval batch). Same 5x5 network (L=5 fixed); a more conservative, lower-variance
+# optimisation regime. A distinct, REAL group of results.
+profile: group_lrbatch
+base: base.yaml
+
+overrides:
+  actor_lr: 0.006      # <-- half the default tabular step (0.012)
+  n_sample_traj: 30    # <-- M: larger policy-gradient batch (default 15)
+  eval_M: 60           # <-- larger, lower-variance evaluation batch (default 30)
+  seeds: [1, 2, 3]
+  total_iters: 600
+  test_every: 20
+  checkpoint_every: 300
+
+experiments:
+  - config: main
+    methods: [dspd, spdac, mappo_l, mappo_l_dec, mappo_l_decagg]
+    overrides: {}
+  - config: estimation
+    methods: [dspd]
+    overrides: {lr_tau: 40, dual_schedule: inverse, K_push: 30, init_idle_bias: 0.0}
+  - config: ablation_k2
+    methods: [dspd]
+    overrides: {kappa: 2}
+  - config: ablation_k3
+    methods: [dspd]
+    overrides: {kappa: 3}
+  - config: beta0.3
+    methods: [dspd]
+    overrides: {beta: 0.3}
+  - config: beta0.7
+    methods: [dspd]
+    overrides: {beta: 0.7}
+  - config: eta1
+    methods: [dspd]
+    overrides: {eta_mu: 1.0}
+  - config: eta100
+    methods: [dspd]
+    overrides: {eta_mu: 100.0}

@@ -1,0 +1,553 @@
+{
+  "profile": "final_v4",
+  "base": {
+    "L": 5,
+    "ddl": 2,
+    "H": 12,
+    "pkg_p": 0.5,
+    "success_p": 0.8,
+    "heterogeneous": false,
+    "env_seed": 42,
+    "gamma": 0.9,
+    "beta": 0.5,
+    "kappa": 1,
+    "kappa_p": 1,
+    "credit_norm": "sum",
+    "init_idle_bias": 3.0,
+    "actor_lr": 0.012,
+    "lr_tau": 120,
+    "lr_schedule": "current",
+    "lr_Ltheta": 80.0,
+    "eta_mu": 10.0,
+    "mu_max": 50.0,
+    "n_sample_traj": 15,
+    "max_grad_norm": 1.0,
+    "update_epochs": 4,
+    "clip_eps": 0.2,
+    "K_push": 3,
+    "dual_schedule": "fixed",
+    "total_iters": 800,
+    "test_every": 20,
+    "eval_M": 60,
+    "checkpoint_every": 100000,
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "torch_deterministic": true
+  },
+  "experiments": [
+    {
+      "config": "main",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 20,
+        "init_idle_bias": 2.5,
+        "actor_lr": 0.02,
+        "eta_mu": 4.0,
+        "grad_probe_batches": [
+          64,
+          128,
+          256,
+          512,
+          1024,
+          2048
+        ],
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "main",
+      "methods": [
+        "spdac"
+      ],
+      "overrides": {
+        "total_iters": 800,
+        "test_every": 20,
+        "init_idle_bias": 2.5,
+        "actor_lr": 0.012,
+        "eta_mu": 8.0
+      }
+    },
+    {
+      "config": "main",
+      "methods": [
+        "mappo_l"
+      ],
+      "overrides": {
+        "total_iters": 800,
+        "test_every": 20,
+        "init_idle_bias": 2.5,
+        "actor_lr": 0.009,
+        "eta_mu": 12.0,
+        "update_epochs": 4
+      }
+    },
+    {
+      "config": "arc",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "actor_lr": 0.005,
+        "eta_mu": 2.0,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "arc",
+      "methods": [
+        "spdac"
+      ],
+      "overrides": {
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "actor_lr": 0.0026,
+        "eta_mu": 6.0
+      }
+    },
+    {
+      "config": "arc",
+      "methods": [
+        "mappo_l"
+      ],
+      "overrides": {
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "actor_lr": 0.0038,
+        "eta_mu": 3.4
+      }
+    },
+    {
+      "config": "estimation",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 20,
+        "lr_tau": 40,
+        "dual_schedule": "inverse",
+        "K_push": 30,
+        "n_sample_traj": 6,
+        "init_idle_bias": 0.0,
+        "lnet_per_seed": true,
+        "lnet_structure": "switch2",
+        "lnet_extra_edge_p": 0.04
+      }
+    },
+    {
+      "config": "est_k01",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 20,
+        "lr_tau": 40,
+        "dual_schedule": "inverse",
+        "K_push": 1,
+        "n_sample_traj": 6,
+        "init_idle_bias": 0.0,
+        "lnet_per_seed": true,
+        "lnet_structure": "switch2",
+        "lnet_extra_edge_p": 0.04
+      }
+    },
+    {
+      "config": "est_k03",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 20,
+        "lr_tau": 40,
+        "dual_schedule": "inverse",
+        "K_push": 3,
+        "n_sample_traj": 6,
+        "init_idle_bias": 0.0,
+        "lnet_per_seed": true,
+        "lnet_structure": "switch2",
+        "lnet_extra_edge_p": 0.04
+      }
+    },
+    {
+      "config": "est_k10",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 20,
+        "lr_tau": 40,
+        "dual_schedule": "inverse",
+        "K_push": 10,
+        "n_sample_traj": 6,
+        "init_idle_bias": 0.0,
+        "lnet_per_seed": true,
+        "lnet_structure": "switch2",
+        "lnet_extra_edge_p": 0.04
+      }
+    },
+    {
+      "config": "est_k30",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 20,
+        "lr_tau": 40,
+        "dual_schedule": "inverse",
+        "K_push": 30,
+        "n_sample_traj": 6,
+        "init_idle_bias": 0.0,
+        "lnet_per_seed": true,
+        "lnet_structure": "switch2",
+        "lnet_extra_edge_p": 0.04
+      }
+    },
+    {
+      "config": "lr0005",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 20,
+        "init_idle_bias": 2.5,
+        "eta_mu": 4.0,
+        "actor_lr": 0.005,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "lr002",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 20,
+        "init_idle_bias": 2.5,
+        "eta_mu": 4.0,
+        "actor_lr": 0.02,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "lr005",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 20,
+        "init_idle_bias": 2.5,
+        "eta_mu": 4.0,
+        "actor_lr": 0.05,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "lr015",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 20,
+        "init_idle_bias": 2.5,
+        "eta_mu": 4.0,
+        "actor_lr": 0.15,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "lr030",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 20,
+        "init_idle_bias": 2.5,
+        "eta_mu": 4.0,
+        "actor_lr": 0.3,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "lrc0005",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "eta_mu": 20.0,
+        "actor_lr": 0.005,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "lrc002",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "eta_mu": 20.0,
+        "actor_lr": 0.02,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "lrc005",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "eta_mu": 20.0,
+        "actor_lr": 0.05,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "lrc015",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "eta_mu": 20.0,
+        "actor_lr": 0.15,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "lrc030",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "eta_mu": 20.0,
+        "actor_lr": 0.3,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "arclr008",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "eta_mu": 2.0,
+        "actor_lr": 0.008,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "arclr012",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "eta_mu": 2.0,
+        "actor_lr": 0.012,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "arclr016",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "eta_mu": 2.0,
+        "actor_lr": 0.016,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "arclr002",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "eta_mu": 2.0,
+        "actor_lr": 0.02,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "arclr005",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "eta_mu": 2.0,
+        "actor_lr": 0.05,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "arclr015",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "eta_mu": 2.0,
+        "actor_lr": 0.15,
+        "lnet_structure": "switch2"
+      }
+    },
+    {
+      "config": "arclr030",
+      "methods": [
+        "dspd"
+      ],
+      "overrides": {
+        "estimator": "pushsum",
+        "total_iters": 800,
+        "test_every": 8,
+        "n_sample_traj": 6,
+        "eval_M": 10,
+        "init_idle_bias": 0.0,
+        "init_dir_bias": 1.5,
+        "eta_mu": 2.0,
+        "actor_lr": 0.3,
+        "lnet_structure": "switch2"
+      }
+    }
+  ],
+  "provenance": {
+    "timestamp_utc": "2026-07-21T19:58:05.728284+00:00",
+    "hostname": "coven01.engr.ucr.edu",
+    "python": "3.11.5",
+    "numpy": "1.24.3",
+    "torch": "2.13.0+cpu",
+    "cuda": "cpu",
+    "platform": "Linux-5.15.0-139-generic-x86_64-with-glibc2.31",
+    "cmdline": "/tmp/claude-1001/-home-dongmingwang-project-DSDP-new/a2bde4d4-7f3f-453b-bd45-5af60ce16ee1/scratchpad/launch_0048.py",
+    "git_hash": "no-git",
+    "git_dirty": false
+  }
+}

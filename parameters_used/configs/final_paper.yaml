@@ -1,0 +1,87 @@
+# FINAL-PAPER profile: identical experiment matrix to final.yaml, but the method-demonstration
+# figures use the DRAFT'S EXACT theoretical learning rates (Algorithm 1 / Theorem 3, Assumption 7):
+#     eta_theta,m = 1/(2m + L_theta)   (L_theta = lr_Ltheta),   eta_mu,m = 1/(2m).
+# Set via the single parameter `lr_schedule: paper` (default elsewhere is `current`, which keeps the
+# tuned actor_lr/(1+m/lr_tau) primal + per-schedule dual, i.e. the run_0039 setting -- unchanged).
+#
+# Under `paper`, per-method actor_lr / eta_mu overrides are IGNORED: all three methods share the
+# identical paper schedule, so the return/arc curves differ only by ALGORITHM structure (coupled
+# push-sum vs factorized vs PPO-clip), not by per-family LR tuning. This is the honest "same
+# learning rate, methods differ structurally" comparison the paper's theory prescribes.
+#
+# EXCEPTION: Figures 5-6 are learning-rate ABLATIONS -- their whole purpose is to vary eta_theta.
+# A single fixed paper schedule would collapse them to identical curves, so those 10 sweep entries
+# are pinned back to `lr_schedule: current` (they remain the tuned actor_lr sweep). Every figure is
+# a real, logged run.
+profile: final_paper
+base: base.yaml
+
+overrides:
+  seeds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+  checkpoint_every: 100000
+  eval_M: 60
+  lr_schedule: paper      # <-- the draft's exact eta_theta=1/(2m+L_theta), eta_mu=1/(2m)
+  lr_Ltheta: 80.0         # L_{theta theta}; initial eta_theta ~= 1/82 ~ 0.012 (matches tuned step)
+
+experiments:
+  # -- Figure 1: return comparison (config 'main'); PAPER learning rate for all three methods.
+  - config: main
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5}
+  - config: main
+    methods: [spdac]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5}
+  - config: main
+    methods: [mappo_l]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5, update_epochs: 4}
+
+  # -- Figure 2: constraint arc (config 'arc') for ALL THREE methods; PAPER learning rate.
+  - config: arc
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5}
+  - config: arc
+    methods: [spdac]
+    overrides: {total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5}
+  - config: arc
+    methods: [mappo_l]
+    overrides: {total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5}
+
+  # -- Figures 3-4: DSPD parameter-estimation (Theorem 2, O(1/m)); PAPER rate + full mixing.
+  - config: estimation
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 20, K_push: 30, n_sample_traj: 6, init_idle_bias: 0.0, lnet_per_seed: true, lnet_structure: random, lnet_extra_edge_p: 0.04}
+
+  # -- Figure 5: LR ablation on the OBJECTIVE. Pinned to lr_schedule=current so eta_theta actually
+  #    varies (a paper-fixed schedule would make all curves identical).
+  - config: lr0005
+    methods: [dspd]
+    overrides: {lr_schedule: current, total_iters: 800, test_every: 20, init_idle_bias: 2.5, eta_mu: 4.0, actor_lr: 0.005}
+  - config: lr002
+    methods: [dspd]
+    overrides: {lr_schedule: current, total_iters: 800, test_every: 20, init_idle_bias: 2.5, eta_mu: 4.0, actor_lr: 0.02}
+  - config: lr005
+    methods: [dspd]
+    overrides: {lr_schedule: current, total_iters: 800, test_every: 20, init_idle_bias: 2.5, eta_mu: 4.0, actor_lr: 0.05}
+  - config: lr015
+    methods: [dspd]
+    overrides: {lr_schedule: current, total_iters: 800, test_every: 20, init_idle_bias: 2.5, eta_mu: 4.0, actor_lr: 0.15}
+  - config: lr030
+    methods: [dspd]
+    overrides: {lr_schedule: current, total_iters: 800, test_every: 20, init_idle_bias: 2.5, eta_mu: 4.0, actor_lr: 0.30}
+
+  # -- Figure 6: LR ablation on the CONSTRAINT arc. Also pinned to lr_schedule=current.
+  - config: lrc0005
+    methods: [dspd]
+    overrides: {lr_schedule: current, total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5, eta_mu: 20.0, actor_lr: 0.005}
+  - config: lrc002
+    methods: [dspd]
+    overrides: {lr_schedule: current, total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5, eta_mu: 20.0, actor_lr: 0.02}
+  - config: lrc005
+    methods: [dspd]
+    overrides: {lr_schedule: current, total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5, eta_mu: 20.0, actor_lr: 0.05}
+  - config: lrc015
+    methods: [dspd]
+    overrides: {lr_schedule: current, total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5, eta_mu: 20.0, actor_lr: 0.15}
+  - config: lrc030
+    methods: [dspd]
+    overrides: {lr_schedule: current, total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5, eta_mu: 20.0, actor_lr: 0.30}

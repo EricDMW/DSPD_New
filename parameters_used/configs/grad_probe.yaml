@@ -1,0 +1,25 @@
+# run_0042: LARGE-BATCH GRADIENT RE-EVALUATION (Theorem-3 validation).
+# Reuses the reference DSPD operating point of run_0039 (main/return regime) UNCHANGED, and adds a
+# low-variance gradient probe at each test point: ||grad_theta L|| is measured at batch sizes
+# B in {16,64,256,1024} (grad_probe_batches). The probe is RNG-isolated (no optimiser step, env/torch
+# RNG + env_step restored), so training reproduces run_0039 bit-for-bit; only the MEASUREMENT changes.
+# Purpose: separate the finite-sample Monte-Carlo variance (~1/B) of the gradient estimate from the
+# irreducible kappa-hop truncation residual O(eps'(kappa,kappa_p)) of Theorem 3, and confirm the
+# stationarity measure converges to that small non-zero floor (not to zero). All data are real logged
+# runs. test_every=20 == run_0039 eval cadence: because evaluate() shares the sampling RNG, matching
+# it makes the training trajectory bit-identical to run_0039 (the probe is RNG-isolated, net-zero).
+# (run_0042 was an equivalent first attempt at test_every=10 -> a fresh but valid trajectory.)
+profile: grad_probe
+base: base.yaml
+
+overrides:
+  seeds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+  checkpoint_every: 100000
+  eval_M: 60
+  grad_probe_batches: [16, 64, 256, 1024]
+
+experiments:
+  # DSPD, main/return operating point == run_0039 Figure-1 DSPD entry (params unchanged).
+  - config: main
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5, actor_lr: 0.020, eta_mu: 4.0}

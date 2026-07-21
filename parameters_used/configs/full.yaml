@@ -1,0 +1,40 @@
+# Full profile: the complete Section-9 experiment matrix, 6 seeds (brief section 9/10).
+profile: full
+base: base.yaml
+
+overrides:
+  seeds: [1, 2, 3, 4, 5, 6]
+  total_iters: 800
+  test_every: 20
+
+experiments:
+  # Exp 1 + 6: main comparison + baseline table (all five methods)
+  - config: main
+    methods: [dspd, spdac, mappo_l, mappo_l_dec, mappo_l_decagg]
+    overrides: {}
+  # Exp 2: DSPD parameter-estimation (Theorem 2, O(1/m)) -- theoretical diminishing-step regime;
+  # random init (idle_bias 0) so the dual mu varies and the mu-estimation error is non-trivial.
+  - config: estimation
+    methods: [dspd]
+    overrides: {lr_tau: 40, dual_schedule: inverse, K_push: 30, init_idle_bias: 0.0}
+  # Exp 3: truncation ablation (DSPD kappa in {1,2,3}); kappa=1 is the 'main' dspd run
+  - config: ablation_k2
+    methods: [dspd]
+    overrides: {kappa: 2}
+  - config: ablation_k3
+    methods: [dspd]
+    overrides: {kappa: 3}
+  # Exp 4: constraint-threshold sweep beta in {0.3, 0.7} (0.5 is 'main')
+  - config: beta0.3
+    methods: [dspd, spdac, mappo_l]
+    overrides: {beta: 0.3}
+  - config: beta0.7
+    methods: [dspd, spdac, mappo_l]
+    overrides: {beta: 0.7}
+  # Exp 5: dual step-size sweep eta_mu in {1, 100} (10 is 'main')
+  - config: eta1
+    methods: [dspd]
+    overrides: {eta_mu: 1.0}
+  - config: eta100
+    methods: [dspd]
+    overrides: {eta_mu: 100.0}

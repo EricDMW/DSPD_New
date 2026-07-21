@@ -1,0 +1,27 @@
+# Minimal MAIN-comparison profile (no ablations) -- the "necessary correct" results only.
+# Produces the three separate validity figures (objective F, constraint return G, constraint
+# violation) for the three matched methods DSPD / SPDAC / MAPPO-L.
+#
+# Curve regime = "objective-first" (chosen 2026-07-12): F(theta) is a standard RL learning curve
+# (increases from a feasible-sparse start and stabilises), and DSPD/SPDAC keep the constraint
+# violation near zero throughout while the objective-greedy MAPPO-L overshoots the transmission
+# budget. NB (structural to this env): the objective and the violation both scale with total
+# transmission, so they move TOGETHER -- a rising F necessarily comes with a low/rising (not
+# falling) violation. The "start-infeasible-then-satisfy" variant lives in configs/main_arc.yaml
+# (there F falls as the budget is enforced).
+profile: main
+base: base.yaml
+
+overrides:
+  seeds: [1, 2, 3]
+  total_iters: 1200
+  test_every: 50
+  checkpoint_every: 600
+  init_idle_bias: 2.5    # feasible-sparse start so F rises from ~0.6 and stabilises
+  eta_mu: 5.0
+  eval_M: 60
+
+experiments:
+  - config: main
+    methods: [dspd, spdac, mappo_l]
+    overrides: {}

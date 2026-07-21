@@ -1,0 +1,404 @@
+# AUTO-DERIVED from final_v3.yaml (run_0048). IDENTICAL experiment matrix, with ONE change:
+# every DSPD entry sets `lnet_structure: switch2` -- the manuscript's time-varying learning
+# network that SWITCHES between two directed structures whose union is strongly connected
+# (Assumption 6, D=2), the N=25 analogue of the paper's 1->2->3 / 3->4->1. The switching graph
+# drives the push-sum ESTIMATOR only (Theorem 2), so return figures (F,G,gradient) are
+# byte-identical to run_0047 and only the estimation figures (E_theta,E_mu) change. arclr005/
+# 015/030 are added so Fig.4's wide grid is reproducible from the profile alone.
+
+profile: final_v4
+base: base.yaml
+overrides:
+  seeds:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  checkpoint_every: 100000
+  eval_M: 60
+experiments:
+- config: main
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 20
+    init_idle_bias: 2.5
+    actor_lr: 0.02
+    eta_mu: 4.0
+    grad_probe_batches:
+    - 64
+    - 128
+    - 256
+    - 512
+    - 1024
+    - 2048
+    lnet_structure: switch2
+- config: main
+  methods:
+  - spdac
+  overrides:
+    total_iters: 800
+    test_every: 20
+    init_idle_bias: 2.5
+    actor_lr: 0.012
+    eta_mu: 8.0
+- config: main
+  methods:
+  - mappo_l
+  overrides:
+    total_iters: 800
+    test_every: 20
+    init_idle_bias: 2.5
+    actor_lr: 0.009
+    eta_mu: 12.0
+    update_epochs: 4
+- config: arc
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    actor_lr: 0.005
+    eta_mu: 2.0
+    lnet_structure: switch2
+- config: arc
+  methods:
+  - spdac
+  overrides:
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    actor_lr: 0.0026
+    eta_mu: 6.0
+- config: arc
+  methods:
+  - mappo_l
+  overrides:
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    actor_lr: 0.0038
+    eta_mu: 3.4
+- config: estimation
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 20
+    lr_tau: 40
+    dual_schedule: inverse
+    K_push: 30
+    n_sample_traj: 6
+    init_idle_bias: 0.0
+    lnet_per_seed: true
+    lnet_structure: switch2
+    lnet_extra_edge_p: 0.04
+- config: est_k01
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 20
+    lr_tau: 40
+    dual_schedule: inverse
+    K_push: 1
+    n_sample_traj: 6
+    init_idle_bias: 0.0
+    lnet_per_seed: true
+    lnet_structure: switch2
+    lnet_extra_edge_p: 0.04
+- config: est_k03
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 20
+    lr_tau: 40
+    dual_schedule: inverse
+    K_push: 3
+    n_sample_traj: 6
+    init_idle_bias: 0.0
+    lnet_per_seed: true
+    lnet_structure: switch2
+    lnet_extra_edge_p: 0.04
+- config: est_k10
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 20
+    lr_tau: 40
+    dual_schedule: inverse
+    K_push: 10
+    n_sample_traj: 6
+    init_idle_bias: 0.0
+    lnet_per_seed: true
+    lnet_structure: switch2
+    lnet_extra_edge_p: 0.04
+- config: est_k30
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 20
+    lr_tau: 40
+    dual_schedule: inverse
+    K_push: 30
+    n_sample_traj: 6
+    init_idle_bias: 0.0
+    lnet_per_seed: true
+    lnet_structure: switch2
+    lnet_extra_edge_p: 0.04
+- config: lr0005
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 20
+    init_idle_bias: 2.5
+    eta_mu: 4.0
+    actor_lr: 0.005
+    lnet_structure: switch2
+- config: lr002
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 20
+    init_idle_bias: 2.5
+    eta_mu: 4.0
+    actor_lr: 0.02
+    lnet_structure: switch2
+- config: lr005
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 20
+    init_idle_bias: 2.5
+    eta_mu: 4.0
+    actor_lr: 0.05
+    lnet_structure: switch2
+- config: lr015
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 20
+    init_idle_bias: 2.5
+    eta_mu: 4.0
+    actor_lr: 0.15
+    lnet_structure: switch2
+- config: lr030
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 20
+    init_idle_bias: 2.5
+    eta_mu: 4.0
+    actor_lr: 0.3
+    lnet_structure: switch2
+- config: lrc0005
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    eta_mu: 20.0
+    actor_lr: 0.005
+    lnet_structure: switch2
+- config: lrc002
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    eta_mu: 20.0
+    actor_lr: 0.02
+    lnet_structure: switch2
+- config: lrc005
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    eta_mu: 20.0
+    actor_lr: 0.05
+    lnet_structure: switch2
+- config: lrc015
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    eta_mu: 20.0
+    actor_lr: 0.15
+    lnet_structure: switch2
+- config: lrc030
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    eta_mu: 20.0
+    actor_lr: 0.3
+    lnet_structure: switch2
+- config: arclr008
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    eta_mu: 2.0
+    actor_lr: 0.008
+    lnet_structure: switch2
+- config: arclr012
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    eta_mu: 2.0
+    actor_lr: 0.012
+    lnet_structure: switch2
+- config: arclr016
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    eta_mu: 2.0
+    actor_lr: 0.016
+    lnet_structure: switch2
+- config: arclr002
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    eta_mu: 2.0
+    actor_lr: 0.02
+    lnet_structure: switch2
+- config: arclr005
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    eta_mu: 2.0
+    actor_lr: 0.05
+    lnet_structure: switch2
+- config: arclr015
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    eta_mu: 2.0
+    actor_lr: 0.15
+    lnet_structure: switch2
+- config: arclr030
+  methods:
+  - dspd
+  overrides:
+    estimator: pushsum
+    total_iters: 800
+    test_every: 8
+    n_sample_traj: 6
+    eval_M: 10
+    init_idle_bias: 0.0
+    init_dir_bias: 1.5
+    eta_mu: 2.0
+    actor_lr: 0.3
+    lnet_structure: switch2

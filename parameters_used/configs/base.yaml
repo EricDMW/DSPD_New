@@ -1,0 +1,60 @@
+# Shared defaults (brief section 10). Every value is read from config, never hard-coded in
+# code; the fully-resolved config is dumped to each run's config.json (brief section 11.2).
+# L=5 is FIXED (the 5x5 wireless network, N=25, 16 APs) and must never be swept (brief section 4).
+
+# -- environment (fixed instance) --
+L: 5                    # FIXED - asserted in code
+ddl: 2                  # |S_i| = 4
+H: 12                   # max_cycles / episode length
+pkg_p: 0.5              # p_i packet arrival prob
+success_p: 0.8          # q_y transmit success prob
+heterogeneous: false    # homogeneous instance == reference; sampled-once either way
+env_seed: 42            # fixed env-instance seed, SEPARATE from training seed (section 14.10)
+
+# -- problem / constraint --
+gamma: 0.9             # discount (gamma=0.9 for the kappa-bound reasoning, brief section 10)
+beta: 0.5              # budget fraction; c_i = -beta*(1-gamma^H)/(1-gamma)
+kappa: 1              # communication / credit radius (ablation knob)
+kappa_p: 1            # coupling distance (DSPD, fixed)
+# Credit normalisation for the truncated policy gradient (algos/base.py). Distinct from
+# MAPPO-L's per-variant 'self'/'neigh' credit structure -- this only sets the 1/N vs 1/|N| scale.
+#  'sum'     = draft Eq. (38): A_i = (1/N) sum_{j in N_i^kappa} R_j  (global 1/N; larger kappa
+#              ACCUMULATES more of the returns theta_i influences -> lower truncation bias/violation)
+#  'average' = legacy per-neighbourhood mean 1/|N_i^kappa| (dilutes with kappa; non-authoritative)
+credit_norm: sum
+
+# -- optimisation --
+# Feasible (Idle-biased) initialisation so the objective F(theta) INCREASES from a feasible
+# start toward the constrained optimum while G(theta) descends to c_i (paper Fig. 1/2 behaviour).
+init_idle_bias: 3.0
+actor_lr: 0.012       # tabular softmax step (tuned up from ref 5e-4 for the tabular class)
+# Diminishing policy step-size eta_theta,m = actor_lr / (1 + m/lr_tau), matching the draft's
+# eta_theta,m ~ 1/(2m+L_theta) schedule. This yields the classic RL "increase-then-stable"
+# objective curve (F rises then plateaus as the step-size shrinks). Applied to all methods.
+lr_tau: 120
+# Learning-rate schedule selector. 'current' (default) = the tuned forms above
+# (primal actor_lr/(1+m/lr_tau); dual per dual_schedule). 'paper' = the draft's EXACT
+# theoretical rates for ALL methods: eta_theta,m = 1/(2m + lr_Ltheta) and eta_mu,m = 1/(2m)
+# (Algorithm 1 / Theorem 3, Assumption 7). Under 'paper', actor_lr/lr_tau/eta_mu are ignored.
+lr_schedule: current
+lr_Ltheta: 80.0       # paper's Lipschitz const L_{theta theta}; only used when lr_schedule=paper
+                      # (80 -> initial eta_theta ~= 1/82 ~ 0.012, matching the tuned tabular step)
+eta_mu: 10.0          # dual step-size / weight
+mu_max: 50.0          # dual projection cap (feasible dual set U_i = [0, mu_max])
+n_sample_traj: 15     # M: eval AND policy-gradient batch size
+max_grad_norm: 1.0
+update_epochs: 4      # MAPPO-L PPO epochs (>1 so the PPO clip is active and MAPPO-L is
+                      # genuinely distinct from single-step REINFORCE/SPDAC). Only MAPPO-L
+                      # reads this; DSPD/SPDAC take a single policy-gradient step per iter.
+clip_eps: 0.2         # MAPPO-L PPO clip
+K_push: 3             # DSPD push-sum mixing steps per iteration
+dual_schedule: fixed  # DSPD dual: 'fixed' (equilibrating) | 'inverse' (1/(2m), section 9.5 sweep)
+
+# -- schedule --
+total_iters: 800      # T (iterations); ~80k env-steps at these batch sizes
+test_every: 20        # evaluate/log every 20 iterations
+eval_M: 30            # dedicated (larger) eval batch, brief section 14.18
+checkpoint_every: 200
+
+seeds: [1, 2, 3, 4, 5, 6]
+torch_deterministic: true

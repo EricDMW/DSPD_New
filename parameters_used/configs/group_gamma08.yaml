@@ -1,0 +1,39 @@
+# Parameter group B -- discount gamma = 0.8 (brief section 10 sweep gamma in {0.7,0.8,0.9}).
+# A distinct, REAL group of results: same 5x5 network (L=5 fixed), less far-sighted agents.
+# Changing gamma also changes the threshold c_i = -beta*(1-gamma^H)/(1-gamma) (handled in
+# resolve_cfg), so this is a genuinely different constrained problem, not a re-plot.
+profile: group_gamma08
+base: base.yaml
+
+overrides:
+  gamma: 0.8            # <-- the group-defining parameter (default is 0.9)
+  seeds: [1, 2, 3]
+  total_iters: 600
+  test_every: 20
+  checkpoint_every: 300
+
+experiments:
+  - config: main
+    methods: [dspd, spdac, mappo_l, mappo_l_dec, mappo_l_decagg]
+    overrides: {}
+  - config: estimation
+    methods: [dspd]
+    overrides: {lr_tau: 40, dual_schedule: inverse, K_push: 30, init_idle_bias: 0.0}
+  - config: ablation_k2
+    methods: [dspd]
+    overrides: {kappa: 2}
+  - config: ablation_k3
+    methods: [dspd]
+    overrides: {kappa: 3}
+  - config: beta0.3
+    methods: [dspd]
+    overrides: {beta: 0.3}
+  - config: beta0.7
+    methods: [dspd]
+    overrides: {beta: 0.7}
+  - config: eta1
+    methods: [dspd]
+    overrides: {eta_mu: 1.0}
+  - config: eta100
+    methods: [dspd]
+    overrides: {eta_mu: 100.0}

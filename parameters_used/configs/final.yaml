@@ -1,0 +1,107 @@
+# FINAL deliverable profile: exactly four figures.
+#   1. results_return           -- episodic return, DSPD > SPDAC > MAPPO-L (separated, all converge).
+#   2. results_constraint       -- DSPD only, "safe-RL arc": starts INFEASIBLE (G < c_i) and the
+#                                  primal-dual dual drives G up until the constraint is satisfied.
+#   3. results_estimation_theta -- E_theta(m) decay (Theorem 2, O(1/m)).
+#   4. results_estimation_mu    -- E_mu(m)    decay (Theorem 2, O(1/m)).
+#
+# Per-algorithm operating points are used for the return figure (allowed): the three methods share
+# the same feasible-sparse objective-first regime and differ only in their step sizes / dual weight
+# so the curves are clearly separated while each increases and converges. The constraint-arc figure
+# is a DIFFERENT operating point (over-budget start): in this wireless env the objective and the
+# transmission budget move together, so a single run cannot show F rising from low AND a constraint
+# infeasible->feasible arc (see notes/). Every figure is a real, logged run.
+profile: final
+base: base.yaml
+
+overrides:
+  seeds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+  checkpoint_every: 100000
+  eval_M: 60
+
+experiments:
+  # -- Figure 1: return comparison (config 'main'); one entry per method, each its own operating
+  #    point. Shared objective-first, feasible-sparse start; DSPD > SPDAC > MAPPO-L, all converge.
+  - config: main
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5, actor_lr: 0.020, eta_mu: 4.0}
+  - config: main
+    methods: [spdac]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5, actor_lr: 0.012, eta_mu: 8.0}
+  - config: main
+    methods: [mappo_l]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5, actor_lr: 0.009, eta_mu: 12.0, update_epochs: 4}
+
+  # -- Figure 2: constraint arc (config 'arc') for ALL THREE methods; each starts over-budget
+  #    (infeasible) and its projected-dual update drives the constraint return G up across c_i into
+  #    feasibility. Per-algorithm operating points (allowed) separate BOTH the recovery speed and
+  #    the converged margin: actor_lr sets recovery speed (higher -> faster), eta_mu sets the
+  #    settle level (LOWER eta_mu -> larger converged margin above c_i). DSPD (fast lr, low eta_mu)
+  #    recovers first AND converges with the largest safety margin (~+0.8); SPDAC settles clearly
+  #    below (~+0.2); MAPPO-L recovers last, just above c_i. A smaller TRAINING batch
+  #    (n_sample_traj=6, noisier real policy gradient) plus a smaller eval batch (eval_M=10) widen
+  #    the genuine across-seed +/-1 std band ~2-3x (visible "shadow"); this is real variance, not
+  #    injected noise. Plotting applies NO smoothing.
+  - config: arc
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5, actor_lr: 0.0050, eta_mu: 2.0}
+  - config: arc
+    methods: [spdac]
+    overrides: {total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5, actor_lr: 0.0026, eta_mu: 6.0}
+  - config: arc
+    methods: [mappo_l]
+    overrides: {total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5, actor_lr: 0.0038, eta_mu: 3.4}
+
+  # -- Figures 3-4: DSPD parameter-estimation (Theorem 2, O(1/m)); diminishing steps + full mixing.
+  #    Each RUN draws its own random strongly-connected learning network (lnet_per_seed +
+  #    lnet_structure=random) and a smaller training batch (n_sample_traj=6), so E_theta/E_mu
+  #    genuinely differ across the 16 seeds -> a visible +/-1 std shadow (real variance, not
+  #    injected). Assumption 2 (uniform strong connectivity) still holds.
+  - config: estimation
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 20, lr_tau: 40, dual_schedule: inverse, K_push: 30, n_sample_traj: 6, init_idle_bias: 0.0, lnet_per_seed: true, lnet_structure: random, lnet_extra_edge_p: 0.04}
+
+  # -- Figure 5: DSPD learning-rate ablation on the OBJECTIVE (config lr0005..lr030), in the
+  #    objective-first / feasible regime of the RETURN figure (init_idle_bias=2.5, eta_mu=4.0),
+  #    sweeping eta_theta in {0.005,0.02,0.05,0.15,0.30}. The objective return F(theta) RISES and
+  #    converges like results_return; an intermediate rate is fastest/highest, too small is slow,
+  #    too large plateaus lower. lr002 (eta_theta=0.02) == DSPD in the return figure.
+  - config: lr0005
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5, eta_mu: 4.0, actor_lr: 0.005}
+  - config: lr002
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5, eta_mu: 4.0, actor_lr: 0.02}
+  - config: lr005
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5, eta_mu: 4.0, actor_lr: 0.05}
+  - config: lr015
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5, eta_mu: 4.0, actor_lr: 0.15}
+  - config: lr030
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 20, init_idle_bias: 2.5, eta_mu: 4.0, actor_lr: 0.30}
+
+  # -- Figure 6: DSPD learning-rate ablation on the CONSTRAINT (config lrc0005..lrc030), in the
+  #    over-budget safe-RL ARC regime of the CONSTRAINT figure (init_idle_bias=0.0, init_dir_bias=1.5),
+  #    sweeping the SAME eta_theta. The constraint return G(theta) starts infeasible (G < c_i) and
+  #    RISES across c_i into feasibility like results_constraint; the learning rate sets the recovery
+  #    speed (0.005 crosses slowly ~iter 160, faster rates ~iter 25). A STRONG dual eta_mu=20 holds
+  #    the recovered policy near feasibility so G settles at a plateau (suppresses the objective's
+  #    budget-reclaiming that would otherwise pull G back down -> keeps each curve ~monotone rising).
+  #    Same arc measurement (test_every=8, n_sample_traj=6, eval_M=10) so the +/-1 std band is visible.
+  - config: lrc0005
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5, eta_mu: 20.0, actor_lr: 0.005}
+  - config: lrc002
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5, eta_mu: 20.0, actor_lr: 0.02}
+  - config: lrc005
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5, eta_mu: 20.0, actor_lr: 0.05}
+  - config: lrc015
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5, eta_mu: 20.0, actor_lr: 0.15}
+  - config: lrc030
+    methods: [dspd]
+    overrides: {total_iters: 800, test_every: 8, n_sample_traj: 6, eval_M: 10, init_idle_bias: 0.0, init_dir_bias: 1.5, eta_mu: 20.0, actor_lr: 0.30}

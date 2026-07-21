@@ -7,5 +7,9 @@
 # Keep Python source files
 !*.py
 
+# Keep parameters_used
+!*.yaml
+!*.json
+
 # Keep this .gitignore itself
 !.gitignore

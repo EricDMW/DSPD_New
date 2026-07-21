@@ -1,0 +1,23 @@
+# MAIN comparison, "safe-RL arc" variant: the policy starts TRANSMITTING HARD (over the budget),
+# so the constraint is clearly VIOLATED at the start and the primal-dual dual then drives the
+# violation smoothly down to feasibility over training -- a well-established constraint-violation
+# curve ("first violate, then satisfy"). Trade-off (structural to this env): because the objective
+# F and the violation both scale with total transmission, F starts high and DECREASES as the
+# budget is enforced (they cannot move in opposite directions here).
+profile: main_arc
+base: base.yaml
+
+overrides:
+  seeds: [1, 2, 3]
+  total_iters: 1000
+  test_every: 40
+  checkpoint_every: 500
+  init_idle_bias: 0.0
+  init_dir_bias: 3.5     # all agents start biased to the same corner -> over-budget, infeasible
+  eta_mu: 10.0
+  eval_M: 60
+
+experiments:
+  - config: main
+    methods: [dspd, spdac, mappo_l]
+    overrides: {}

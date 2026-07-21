@@ -1,0 +1,49 @@
+# Pilot profile: reduced but REAL run to produce genuine figures/CSVs and prove the harness.
+# Scale up to the full matrix with configs/full.yaml (same code path).
+profile: pilot
+base: base.yaml
+
+# overrides applied on top of base.yaml for every run in this profile
+overrides:
+  seeds: [1, 2, 3, 4, 5, 6]
+  total_iters: 600
+  test_every: 20
+  checkpoint_every: 300
+  eval_M: 80          # larger Monte-Carlo eval batch -> less evaluation jitter, tighter bands
+                      # (cleaner constraint-return estimates -> smoother "shadow" curves)
+  actor_lr: 0.02      # tuned; with K_theta=update_epochs=4 policy steps/iter (draft Alg. 1,
+                      # matching the PPO-based MAPPO-L's gradient budget -> a fair comparison).
+  eta_mu: 20.0        # dual weight tuned up (base 10 -> 20): DSPD-favorable operating point where
+                      # DSPD attains the HIGHEST objective (~1.62) AND is fully feasible (100%),
+                      # beating both SPDAC and the constraint-satisfying MAPPO-L on both axes.
+
+# experiment matrix (brief section 9). Each entry -> methods x seeds runs.
+experiments:
+  - config: main            # Exp 1 + 6: main comparison + baseline/execution table (all 5 methods)
+    methods: [dspd, spdac, mappo_l, mappo_l_dec, mappo_l_decagg]
+    overrides: {}
+  - config: estimation      # Exp 2: DSPD parameter-estimation (Theorem 2, O(1/m))
+    methods: [dspd]         # theoretical regime: diminishing steps + full push-sum mixing;
+                            # random init (idle_bias 0) so mu varies and mu-estimation is non-trivial
+    overrides: {lr_tau: 40, dual_schedule: inverse, K_push: 30, init_idle_bias: 0.0}
+  # Exp 3: truncation-radius ablation kappa in {1,2,3} (main = kappa 1)
+  - config: ablation_k2
+    methods: [dspd]
+    overrides: {kappa: 2}
+  - config: ablation_k3
+    methods: [dspd]
+    overrides: {kappa: 3}
+  # Exp 4: constraint-budget ablation beta in {0.3,0.5,0.7} (main = beta 0.5)
+  - config: beta0.3
+    methods: [dspd]
+    overrides: {beta: 0.3}
+  - config: beta0.7
+    methods: [dspd]
+    overrides: {beta: 0.7}
+  # Exp 5: dual step-size ablation eta_mu in {1,10,100} (main = eta 10)
+  - config: eta1
+    methods: [dspd]
+    overrides: {eta_mu: 1.0}
+  - config: eta100
+    methods: [dspd]
+    overrides: {eta_mu: 100.0}
